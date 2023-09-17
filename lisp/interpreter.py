@@ -66,7 +66,7 @@ def pairlis(x, y, variables):
     print("  x   =", x)
     print("  y   =", y)
     print("  vars=", variables)
-    if x == NIL:
+    if x == Atom("NIL"):
         return variables
     else:
         return Pair(Pair(first(x), first(y)), pairlis(second(x), second(y), variables))
@@ -85,7 +85,7 @@ def evcon(c, variables):
     else:
         return evcon(second(c), variables)
 
-def evlis(m: Pair, variables):
+def evlis(m, variables):
     print("\nevlis")
     print("     m=", m)
     print("  vars=", variables)
