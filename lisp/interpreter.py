@@ -122,50 +122,40 @@ def l_eval(form, variables):
     if form == Atom("COND"):
         raise
 
-    if form == NIL:
-        return NIL
-    elif atom(form):
-        if is_int(form.name):
-            return int(form.name)
+    match form:
+        case Atom("NIL"):
+            return Atom("NIL")
+        case Atom(name):
+            if is_int(name):
+                return int(name)
 
-        if is_float(form.name):
-            return float(form.name)
+            if is_float(name):
+                return float(name)
 
-        # I think this is where function lookups go?
-        if form.name in GlobalVars:
-            return GlobalVars[form.name]
-        else:
-            print("!! form.name=", form.name)
-            print("!! GlobalVars.keys()=", GlobalVars.keys())
-            return second(assoc(form, variables))
-    elif first(form) == Atom("QUOTE"):
-        return second(form)
-    #elif first(form).name == "FUNCTION":
-    #    # TODO: Figure out what FUNCTION does.
-    elif first(form) == Atom("COND"):
-        return evcon(second(form), variables)
-    #elif first(form).name == "PROG":
-    #    # TODO: Figure out what PROG does.
-    elif atom(first(form)):
-        #if first(form) == Atom("QUOTE"):
-        #    return fs(form)
-        #elif first(form) == Atom("COND"):
-        #    return evcon(second(form), variables)
-        #else:
-        #    return apply(first(form), evlis(second(form), variables), variables)
-
-        # TODO: See page 71 of _LISP 1.5 Progammers Manual_.
-        #if ...:
-        #    ...
-        #else:
-        # should it be assoc(first(form), variables, NIL? Not sure what the symbol the paper used means...)
-        return l_eval(Pair(second(assoc(first(form), variables))), second(form), variables)
-    else:
-        print("  else:")
-        print("    first(form) =", first(form))
-        print("    second(form)=", second(form))
-        print("    variables   =", variables)
-        return apply(first(form), evlis(second(form), variables), variables)
+            # I think this is where function lookups go?
+            if name in GlobalVars:
+                return GlobalVars[name]
+            else:
+                print("!! form.name=", name)
+                print("!! GlobalVars.keys()=", GlobalVars.keys())
+                return second(assoc(form, variables))
+        case [Atom("QUOTE"), _]:
+            return second(form)
+        #case [Atom("FUNCTION"), _]:
+        #    # TODO: Figure out what FUNCTION does.
+        case [Atom("COND"), _]:
+            return evcon(second(form), variables)
+        #case [Atom("PROG"), _]:
+        #    # TODO: Figure out what PROG does.
+        case Pair(Atom(a), b):
+            # From page 71 of _LISP 1.5 Programmers Manual_.
+            return l_eval(Pair(second(assoc(first(form), variables))), second(form), variables)
+        case _:
+            print("  case _:")
+            print("    first(form) =", first(form))
+            print("    second(form)=", second(form))
+            print("    variables   =", variables)
+            return apply(first(form), evlis(second(form), variables), variables)
 
 def bool2atom(x):
     if x:
