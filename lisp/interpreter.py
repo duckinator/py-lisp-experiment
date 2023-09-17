@@ -45,13 +45,13 @@ def eq(x, y):
     return x == y
 
 def equal(x, y):
-    if atom(x):
-        if atom(y):
+    match [x, y]:
+        case [Atom(_), Atom(_)]:
             return eq(x, y)
-        else:
+        case [Pair(_, _), Pair(_, )]:
+            return equal(first(x), first(y)) and equal(second(x), second(y))
+        case _:
             return False
-    else:
-        return False
 
 def assoc(x, variables):
     print("\nassoc/variables=", variables, " [x=", x, "]")
