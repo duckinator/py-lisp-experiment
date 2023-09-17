@@ -139,13 +139,13 @@ def l_eval(form, variables):
                 print("!! form.name=", name)
                 print("!! GlobalVars.keys()=", GlobalVars.keys())
                 return second(assoc(form, variables))
-        case [Atom("QUOTE"), _]:
-            return second(form)
-        #case [Atom("FUNCTION"), _]:
+        case Pair(Atom("QUOTE"), expr):
+            return expr
+        #case Pair(Atom("FUNCTION"), _):
         #    # TODO: Figure out what FUNCTION does.
-        case [Atom("COND"), _]:
-            return evcon(second(form), variables)
-        #case [Atom("PROG"), _]:
+        case Pair(Atom("COND"), exprs):
+            return evcon(exprs, variables)
+        #case Pair(Atom("PROG"), _):
         #    # TODO: Figure out what PROG does.
         case Pair(Atom(a), b):
             # From page 71 of _LISP 1.5 Programmers Manual_.
