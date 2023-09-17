@@ -1,3 +1,8 @@
 #!/bin/sh
 
+# This file is just so I can hit F5 in nvim instead of switching back
+# and forth to a terminal, for a quicker feedback cycle.
+#
+# You don't need to care about it. :)
+
 python3 -m lisp
