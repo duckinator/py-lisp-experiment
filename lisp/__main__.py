@@ -14,7 +14,6 @@ def str2atom(lst):
     return [_str2atom2(item) for item in lst]
 
 def list2pair(lst):
-    print("list2pair(", lst, ")")
     if not isinstance(lst, list):
         return lst
 
@@ -29,7 +28,7 @@ def DEFINE(name, x):
     return Pair(Atom(name), x)
 
 def LAMBDA(args, body):
-    return Pair(list2pair(args), body)
+    return Pair(Atom("LAMBDA"), Pair(list2pair(args), body))
 
 def COND(lst):
     return Pair(Atom("COND"), list2pair(lst))
@@ -88,11 +87,23 @@ def main():
         (Atom("UNION"), list2pair([["X", "Y", "Z"], ["U", "V", "W", "X"]]))
     ]
 
-    for fn, x in programs:
+    programs = [
+        (Atom("NULL"), Atom("NIL")),
+
+        (LAMBDA(['X', 'Y'],
+                COND([
+                    [["NULL", "X"],      "Y"],
+                    [["NULL", "Y"],      "AAAAAAAAAAAA"],
+                    [["QUOTE", "TRUE"],  "NIL"],
+                ])),
+         Pair('1', '2')),
+    ]
+
+    for fn, args in programs:
         print("----")
-        print(fn)
+        print("(" + str(fn) + "\n    " + str(args) + ")")
         print("=>")
-        print(evalquote(fn, x))
+        print(evalquote(fn, args))
         print()
 
 main()
