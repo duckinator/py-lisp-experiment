@@ -29,6 +29,7 @@ def DEFINE(name, x):
 
 def LAMBDA(args, body):
     return Pair(Atom("LAMBDA"), Pair(list2pair(args), body))
+    #return Pair(Pair(Atom("LAMBDA"), list2pair(args)), body)
 
 def COND(lst):
     return Pair(Atom("COND"), list2pair(lst))
@@ -99,11 +100,19 @@ def main():
          Pair('1', '2')),
     ]
 
+    #programs = [
+    #    (LAMBDA(['X'], ['X']), Atom('1'))
+    #]
+
     for fn, args in programs:
         print("----")
         print("(" + str(fn) + "\n    " + str(args) + ")")
         print("=>")
         print(evalquote(fn, args))
         print()
+
+
+import sys
+sys.setrecursionlimit(40)
 
 main()
