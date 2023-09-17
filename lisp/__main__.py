@@ -14,12 +14,16 @@ def str2atom(lst):
     return [_str2atom2(item) for item in lst]
 
 def list2pair(lst):
+    print("list2pair(", lst, ")")
+    if not isinstance(lst, list):
+        return lst
+
     lst = str2atom(lst)
 
     if len(lst) == 2:
-        return Pair(lst[0], lst[1])
+        return Pair(list2pair(lst[0]), list2pair(lst[1]))
     else:
-        return Pair(list2pair(lst[0:-1]), lst[-1])
+        return Pair(list2pair(lst[0:-1]), list2pair(lst[-1]))
 
 def DEFINE(name, x):
     return Pair(Atom(name), x)
@@ -76,7 +80,7 @@ def main():
                    COND([
                        [["NULL", "X"],                  "Y"],
                        [["MEMBER", ["CAR", "X"], "Y"],  ["UNION", ["CDR", "X"], "Y"]],
-                       [[["QUOTE", "TRUE"],             ["CONS", ["CAR", "X"], ["UNION", ["CDR", "X"], "Y"]]]]
+                       [["QUOTE", "TRUE"],             ["CONS", ["CAR", "X"], ["UNION", ["CDR", "X"], "Y"]]]
                     ])
             )
         )),
@@ -89,7 +93,6 @@ def main():
         print(fn)
         print("=>")
         print(evalquote(fn, x))
-        #print(evalquote(Atom("UNION"), list2pair([["X", "Y", "Z"], ["U", "V", "W", "X"]])))
         print()
 
 main()

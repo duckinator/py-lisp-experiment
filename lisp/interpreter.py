@@ -36,7 +36,6 @@ def atom(x):
     return isinstance(x, Atom)
 
 def eq(x, y):
-    print("eq(", x, ", ", y, ")")
     return x == y
 
 def equal(x, y):
@@ -48,38 +47,44 @@ def equal(x, y):
     else:
         return False
 
-def assoc(x, a):
-    print("  assoc(", x, ", ", a, ")")
-    if equal(first(first(a)), x):
-        return first(a)
+def assoc(x, variables):
+    print("  assoc(", x, ", ", variables, ")")
+    if equal(first(first(variables)), x):
+        return first(variables)
     else:
-        return assoc(x, second(a))
+        return assoc(x, second(variables))
 
-def evcon(c, a):
-    if l_eval(first(first(c)), a):
-        return l_eval(first(second(first(c))), a)
+def pairlis(x, y, variables):
+    if x == NIL:
+        return variables
     else:
-        return evcon(second(c), a)
+        return Pair(Pair(first(x), first(y)), pairlis(second(x), second(y), variables))
 
-def evlis(m: Pair, a):
-    if m == Atom("NIL"):
+def evcon(c, variables):
+    if l_eval(first(first(c)), variables):
+        return l_eval(first(second(first(c))), variables)
+    else:
+        return evcon(second(c), variables)
+
+def evlis(m: Pair, variables):
+    if m == NIL:
         return NIL
     else:
-        return Pair(l_eval(first(m), a), evlis(second(m), a))
+        return Pair(l_eval(first(m), variables), evlis(second(m), variables))
 
-def l_eval(e, a):
-    print("l_eval(", e, ", ", a, ")")
+def l_eval(e, variables):
+    print("l_eval(", e, ", ", variables, ")")
     if atom(e):
-        return second(assoc(e, a))
+        return second(assoc(e, variables))
     elif atom(first(e)):
         if first(e) == Atom("QUOTE"):
             return fs(e)
         elif first(e) == Atom("COND"):
-            return evcon(second(e), a)
+            return evcon(second(e), variables)
         else:
-            return apply(first(e), evlis(second(e), a), a)
+            return apply(first(e), evlis(second(e), variables), variables)
     else:
-        return apply(first(e), evlis(second(e), a), a)
+        return apply(first(e), evlis(second(e), variables), variables)
 
 def bool2atom(x):
     if x:
@@ -87,30 +92,33 @@ def bool2atom(x):
     else:
         return Atom("FALSE")
 
-def apply(fn, x, a):
-    print("apply(", fn, ", ", x, ", ", a, ")")
+def apply(fn, args, variables):
+    print("apply(", fn, ", ", args, ", ", variables, ")")
     if atom(fn):
         if fn == Atom("CAR"):
-            return first(first(x))
+            return first(first(args))
         elif fn == Atom("CDR"):
-            return second(first(x))
+            return second(first(args))
         elif fn == Atom("CONS"):
-            return cons(first(x), fs(x))
+            return cons(first(args), fs(args))
         elif fn == Atom("ATOM"):
-            return bool2atom(atom(first(x)))
+            return bool2atom(atom(first(args)))
         elif fn == Atom("EQ"):
-            return bool2atom(eq(first(x), fs(x)))
+            return bool2atom(eq(first(args), fs(args)))
         elif fn == Atom("DEFINE"):
-            GlobalVars[x.left.name] = x.right
-            return GlobalVars[x.left.name]
+            GlobalVars[args.left.name] = args.right
+            return GlobalVars[args.left.name]
         elif fn.name in GlobalVars:
-            return GlobalVars
+            return l_eval(fss(fn), pairlis(GlobalVars[fn.name], args, variables))
+        #    return l_eval(GlobalVars[fn.name], variables)
         else:
-            return apply(l_eval(fn, a), x, a)
+            return apply(l_eval(fn, a), args, variables)
     elif first(fn) == Atom("LAMBDA"):
-        return l_eval(fss(fn), pairlis(fs(fn), x, a))
+        return l_eval(fss(fn), pairlis(fs(fn), args, variables))
     elif first(fn) == Atom("LABEL"):
-        return apply(fss(fn), x, Pair(Pair(fs(fn), fss(fn)), a))
+        return apply(fss(fn), args, Pair(Pair(fs(fn), fss(fn)), variables))
+    else:
+        exit("\n\n\n!!! No match in apply() for {}".format(fn))
 
-def evalquote(fn, x):
-    return apply(fn, x, NIL)
+def evalquote(fn, args):
+    return apply(fn, args, NIL)
