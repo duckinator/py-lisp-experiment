@@ -164,15 +164,11 @@ def bool2atom(x):
         return Atom("FALSE")
 
 
-GLOBALS = []
 def apply(fn, args, variables):
     print("apply")
     print("  fn  =", fn)
     print("  args=", args)
     print("  vars=", variables)
-    #if variables == NIL:
-    #    variables = GLOBALS
-    #print("apply(fn=" + str(fn) + ", ..., ...)")
     match fn:
         case Atom("NIL"):
             return NIL
