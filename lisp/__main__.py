@@ -66,9 +66,9 @@ def main():
         (Atom("DEFINE"), Pair(Atom("MEMBER"),
             LAMBDA(['A', 'X'],
                   COND([
-                    [["NULL", "X"],                 "FALSE"],
-                    [["EQ", "A", ["CAR", "X"]],     "TRUE"],
-                    ["TRUE",                        ["MEMBER", "A", ["SECOND", "X"]]]]))
+                    [["NULL", "X"],                 ["QUOTE", "FALSE"]],
+                    [["EQ", "A", ["CAR", "X"]],     ["QUOTE", "TRUE"]],
+                    [["QUOTE", "TRUE"],             ["MEMBER", "A", ["SECOND", "X"]]]]))
         )),
 
         (Atom("DEFINE"), Pair(Atom("UNION"),
@@ -76,20 +76,20 @@ def main():
                    COND([
                        [["NULL", "X"],                  "Y"],
                        [["MEMBER", ["CAR", "X"], "Y"],  ["UNION", ["CDR", "X"], "Y"]],
-                       [["TRUE",                        ["CONS", ["CAR", "X"], ["UNION", ["CDR", "X"], "Y"]]]]
+                       [[["QUOTE", "TRUE"],             ["CONS", ["CAR", "X"], ["UNION", ["CDR", "X"], "Y"]]]]
                     ])
             )
         )),
 
-        (Atom("UNION"), [["X", "Y", "Z"], ["U", "V", "W", "X"]])
+        (Atom("UNION"), list2pair([["X", "Y", "Z"], ["U", "V", "W", "X"]]))
     ]
 
     for fn, x in programs:
         print("----")
         print(fn)
-        print(x)
         print("=>")
         print(evalquote(fn, x))
+        #print(evalquote(Atom("UNION"), list2pair([["X", "Y", "Z"], ["U", "V", "W", "X"]])))
         print()
 
 main()
