@@ -5,4 +5,4 @@
 #
 # You don't need to care about it. :)
 
-python3 -m lisp
+python3.10 -m lisp
