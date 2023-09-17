@@ -191,9 +191,7 @@ def apply(fn, args, variables):
         case Atom("DEFINE"):
             GlobalVars[args.left.name] = args.right
             return GlobalVars[args.left.name]
-        case [Atom("LAMBDA"), _]:
-            arg_names = fs(fn)
-            fn_body = second(second(fn))
+        case Pair(Atom("LAMBDA"), Pair(arg_names, fn_body)):
             print()
             print()
             print("apply/LAMBDA")
@@ -210,7 +208,7 @@ def apply(fn, args, variables):
             #   form=COND
             #   vars=((X . 1) . ((NIL . NIL) . NIL))
             return l_eval(fn_body, pairlis(arg_names, args, variables))
-        case [Atom("LABEL"), _]:
+        case Pair(Atom("LABEL"), _):
             return apply(fss(fn), args, Pair(Pair(fs(fn), fss(fn)), variables))
         case _:
             return apply(l_eval(fn, variables), args, variables)
