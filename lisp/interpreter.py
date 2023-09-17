@@ -1,5 +1,8 @@
 from dataclasses import dataclass
 
+class InterpreterError(Exception):
+    pass
+
 @dataclass(frozen=True)
 class Atom:
     name: str
@@ -21,7 +24,7 @@ NIL = Atom("NIL")
 
 def first(x):
     if not isinstance(x, Pair):
-        return NIL
+        return x
     return x.left
 
 def second(x: Pair):
@@ -54,41 +57,37 @@ def equal(x, y):
             return False
 
 def assoc(x, variables):
-    print("\nassoc/variables=", variables, " [x=", x, "]")
-    #print("  assoc(", x, ", ", variables, ")")
-    if equal(first(first(variables)), x):
+    #print("assoc/variables=", variables, " [x=", x, "]")
+    if variables == NIL:
+        raise InterpreterError("Undefined variable: " + x.name)
+    elif equal(first(first(variables)), x):
         return first(variables)
     else:
         return assoc(x, second(variables))
 
 def pairlis(x, y, variables):
-    print("pairlis")
-    print("  x   =", x)
-    print("  y   =", y)
-    print("  vars=", variables)
     if x == Atom("NIL"):
         return variables
     else:
         return Pair(Pair(first(x), first(y)), pairlis(second(x), second(y), variables))
 
 def evcon(c, variables):
-    print("evcon")
-    print("  c   =", c)
-    print("  vars=", variables)
+    #print("evcon")
+    #print("  c   =", c)
+    #print("  vars=", variables)
 
-    print(first(first(c)), "=>")
-    print(l_eval(first(first(c)), variables))
+    #print(first(first(c)), "=>")
+    #print(l_eval(first(first(c)), variables))
 
-    exit()
     if l_eval(first(first(c)), variables):
         return l_eval(first(second(first(c))), variables)
     else:
         return evcon(second(c), variables)
 
 def evlis(m, variables):
-    print("\nevlis")
-    print("     m=", m)
-    print("  vars=", variables)
+    #print("\nevlis")
+    #print("     m=", m)
+    #print("  vars=", variables)
     if m == NIL:
         return NIL
     else:
@@ -147,9 +146,9 @@ def l_eval(form, variables):
             return evcon(exprs, variables)
         #case Pair(Atom("PROG"), _):
         #    # TODO: Figure out what PROG does.
-        case Pair(Atom(a), b):
+        #case Pair(Atom(a), b):
             # From page 71 of _LISP 1.5 Programmers Manual_.
-            return l_eval(Pair(second(assoc(first(form), variables))), second(form), variables)
+        #    return l_eval(Pair(second(assoc(first(form), variables))), second(form), variables)
         case _:
             print("  case _:")
             print("    first(form) =", first(form))
@@ -170,8 +169,9 @@ def apply(fn, args, variables):
     print("  args=", args)
     print("  vars=", variables)
     match fn:
-        case Atom("NIL"):
-            return NIL
+        # TODO: Determine if this is necessary?
+        #case Atom("NIL"):
+        #    return NIL
         case Atom("CAR"):
             return first(first(args))
         case Atom("CDR"):
@@ -183,6 +183,7 @@ def apply(fn, args, variables):
         case Atom("EQ"):
             return bool2atom(eq(first(args), fs(args)))
         case Atom("NULL"):
+            print("NULL!")
             return first(args) == NIL
         case Atom("DEFINE"):
             GlobalVars[args.left.name] = args.right
@@ -210,4 +211,4 @@ def apply(fn, args, variables):
             return apply(l_eval(fn, variables), args, variables)
 
 def evalquote(fn, args):
-    return apply(fn, args, NIL)
+    return apply(fn, args, Pair(NIL, NIL))
