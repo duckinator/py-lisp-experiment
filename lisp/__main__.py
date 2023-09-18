@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from .interpreter import evalquote, Atom, Pair
+from .interpreter import run, evalquote, Atom, Pair, build_list
 
 def _str2atom2(item):
     if isinstance(item, str):
@@ -36,6 +36,15 @@ def COND(lst):
 
 
 def main():
+    fn = Pair(Atom("HEAD"), Pair(Atom("TAIL"), build_list(Atom("1"), Atom("2"), Atom("3"))))
+
+    #fn = Atom("HEAD")
+    #args = build_list(Atom("1"), Atom("2"), Atom("3"))
+    print("fn   = " + str(fn))
+    #print(run(fn))
+    print(run(fn))
+    exit()
+
     programs = [
         "(eq 1 1)",
         "(eq 1 2)",
@@ -111,8 +120,5 @@ def main():
         print(evalquote(fn, args))
         print()
 
-
-import sys
-sys.setrecursionlimit(40)
 
 main()

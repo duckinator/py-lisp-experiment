@@ -17,6 +17,7 @@ def test_first():
 def test_second():
     assert second(Atom("1")) == NIL
     assert second(Pair(Atom("1"), Atom("2"))) == Atom("2")
+    assert second(Pair(pair("1", "2"), pair("3", "4"))) == pair("3", "4")
 
 @pytest.mark.skip()
 def test_equal():
@@ -59,6 +60,8 @@ def test_evlist():
 def test_eval():
     ...
 
-@pytest.mark.skip()
-def test_apply():
-    ...
+def test_run():
+    # This also implicitly tests run().
+    assert run(pair("HEAD", build_list(Atom("1"), Atom("2"), Atom("3")))) == Atom("1")
+    assert run(pair("TAIL", build_list(Atom("1"), Atom("2"), Atom("3")))) == pair("2", "3")
+    assert run(pair("HEAD", pair("TAIL", build_list("1", "2", "3")))) == Atom("2")

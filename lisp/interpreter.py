@@ -8,7 +8,7 @@ class Atom:
     name: str
 
     def __str__(self):
-        return self.name
+        return str(self.name)
 
 @dataclass(frozen=True)
 class Pair:
@@ -126,10 +126,10 @@ def l_eval(form, variables):
             return Atom("NIL")
         case Atom(name):
             if is_int(name):
-                return int(name)
+                return Atom(int(name))
 
             if is_float(name):
-                return float(name)
+                return Atom(float(name))
 
             # I think this is where function lookups go?
             if name in GlobalVars:
@@ -173,11 +173,11 @@ def apply(fn, args, variables):
         #case Atom("NIL"):
         #    return NIL
         case Atom("CAR"):
-            return first(first(args))
+            return first(args)
         case Atom("CDR"):
-            return second(first(args))
+            return second(args)
         case Atom("CONS"):
-            return cons(first(args), fs(args))
+            return Pair(first(args), fs(args))
         case Atom("ATOM"):
             return bool2atom(atom(first(args)))
         case Atom("EQ"):
@@ -212,3 +212,26 @@ def apply(fn, args, variables):
 
 def evalquote(fn, args):
     return apply(fn, args, Pair(NIL, NIL))
+
+def build_list(*args):
+    if len(args) == 1:
+        return args
+
+    if len(args) == 2:
+        return Pair(args[0], args[1])
+
+    last, second_last, *rest = args[::-1]
+
+    lst = Pair(second_last, last)
+    for x in rest:
+        lst = Pair(x, lst)
+    return lst
+
+def run(fn):
+    environment = build_list(
+        Pair(Atom("HEAD"), Atom("CAR")),
+        Pair(Atom("TAIL"), Atom("CDR")),
+        Pair(Atom("NIL"),  Atom("NIL")),
+    )
+
+    return apply(fn.left, fn.right, environment)
