@@ -5,10 +5,13 @@ class InterpreterError(Exception):
 
 @dataclass(frozen=True)
 class Atom:
-    name: str
+    value: str
 
     def __str__(self):
-        return str(self.name)
+        return str(self.value)
+
+class Literal(Atom):
+    pass
 
 @dataclass(frozen=True)
 class Pair:
@@ -59,7 +62,7 @@ def equal(x, y):
 def assoc(x, variables):
     #print("assoc/variables=", variables, " [x=", x, "]")
     if variables == NIL:
-        raise InterpreterError("Undefined variable: " + x.name)
+        raise InterpreterError("Undefined variable: " + x.value)
     elif equal(first(first(variables)), x):
         return first(variables)
     else:
@@ -91,7 +94,7 @@ def evlis(m, variables):
     if m == NIL:
         return NIL
     else:
-        print("  ?")
+        print("  evlis/?")
         return Pair(l_eval(first(m), variables), evlis(second(m), variables))
 
 def is_int(s):
@@ -126,10 +129,10 @@ def l_eval(form, variables):
             return Atom("NIL")
         case Atom(name):
             if is_int(name):
-                return Atom(int(name))
+                return Literal(int(name))
 
             if is_float(name):
-                return Atom(float(name))
+                return Literal(float(name))
 
             # I think this is where function lookups go?
             if name in GlobalVars:
@@ -149,6 +152,8 @@ def l_eval(form, variables):
         #case Pair(Atom(a), b):
             # From page 71 of _LISP 1.5 Programmers Manual_.
         #    return l_eval(Pair(second(assoc(first(form), variables))), second(form), variables)
+        case Pair(a, b):
+            return Pair(l_eval(a, variables), l_eval(b, variables))
         case _:
             print("  case _:")
             print("    first(form) =", first(form))
@@ -173,9 +178,9 @@ def apply(fn, args, variables):
         #case Atom("NIL"):
         #    return NIL
         case Atom("CAR"):
-            return first(args)
+            return l_eval(first(args), variables)
         case Atom("CDR"):
-            return second(args)
+            return l_eval(second(args), variables)
         case Atom("CONS"):
             return Pair(first(args), fs(args))
         case Atom("ATOM"):
@@ -207,7 +212,10 @@ def apply(fn, args, variables):
             return l_eval(fn_body, pairlis(arg_names, args, variables))
         case Pair(Atom("LABEL"), _):
             return apply(fss(fn), args, Pair(Pair(fs(fn), fss(fn)), variables))
+        case Literal(_):
+            return fn
         case _:
+            print("!!!fn=", fn)
             return apply(l_eval(fn, variables), args, variables)
 
 def evalquote(fn, args):
@@ -234,4 +242,5 @@ def run(fn):
         Pair(Atom("NIL"),  Atom("NIL")),
     )
 
+    print("==================================")
     return apply(fn.left, fn.right, environment)

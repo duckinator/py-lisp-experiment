@@ -56,12 +56,11 @@ def test_evcon():
 def test_evlist():
     ...
 
-@pytest.mark.skip()
 def test_eval():
-    ...
+    assert l_eval(Pair(Atom("1"), Atom("2")), Pair(Atom("NIL"), Atom("NIL"))) == Pair(Literal(1), Literal(2))
 
 def test_run():
     # This also implicitly tests run().
-    assert run(pair("HEAD", build_list(Atom("1"), Atom("2"), Atom("3")))) == Atom("1")
-    assert run(pair("TAIL", build_list(Atom("1"), Atom("2"), Atom("3")))) == pair("2", "3")
+    assert run(pair("HEAD", build_list(Atom("1"), Atom("2"), Atom("3")))) == Literal(1)
+    assert run(pair("TAIL", build_list(Atom("1"), Atom("2"), Atom("3")))) == Pair(Literal(2), Literal(3))
     assert run(pair("HEAD", pair("TAIL", build_list("1", "2", "3")))) == Atom("2")
