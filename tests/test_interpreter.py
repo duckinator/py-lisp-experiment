@@ -24,6 +24,17 @@ def pair(a, b):
     return Pair(a, b)
 
 
+def test_helper__pair():
+    assert pair("a", "b") == Pair(Atom("a"), Atom("b"))
+    assert pair("1", "2") == Pair(Atom("1"), Atom("2"))
+
+def test_helper__build_list():
+    de = Pair(Atom("D"), Atom("E"))
+    cde = Pair(Atom("C"), de)
+    bcde = Pair(Atom("B"), cde)
+    expected = Pair(Atom("A"), bcde)
+    assert build_list(Atom("A"), Atom("B"), Atom("C"), Atom("D"), Atom("E")) == expected
+
 
 def test_first():
     assert first(Atom("1")) == Atom("1")
@@ -78,4 +89,4 @@ def test_run():
     # This also implicitly tests run().
     assert run(pair("HEAD", build_list(Atom("1"), Atom("2"), Atom("3")))) == Literal(1)
     assert run(pair("TAIL", build_list(Atom("1"), Atom("2"), Atom("3")))) == Pair(Literal(2), Literal(3))
-    assert run(pair("HEAD", pair("TAIL", build_list("1", "2", "3")))) == Atom("2")
+    assert run(pair("HEAD", pair("TAIL", build_list(Atom("1"), Atom("2"), Atom("3"))))) == Atom("2")
