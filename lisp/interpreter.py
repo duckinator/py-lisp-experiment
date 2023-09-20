@@ -221,25 +221,13 @@ def apply(fn, args, variables):
 def evalquote(fn, args):
     return apply(fn, args, Pair(NIL, NIL))
 
-def build_list(*args):
-    if len(args) == 1:
-        return args
-
-    if len(args) == 2:
-        return Pair(args[0], args[1])
-
-    last, second_last, *rest = args[::-1]
-
-    lst = Pair(second_last, last)
-    for x in rest:
-        lst = Pair(x, lst)
-    return lst
-
 def run(fn):
-    environment = build_list(
+    environment = Pair(
         Pair(Atom("HEAD"), Atom("CAR")),
-        Pair(Atom("TAIL"), Atom("CDR")),
-        Pair(Atom("NIL"),  Atom("NIL")),
+        Pair(
+            Pair(Atom("TAIL"), Atom("CDR")),
+            Pair(Atom("NIL"),  Atom("NIL")),
+        )
     )
 
     print("==================================")
